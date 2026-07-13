@@ -548,6 +548,11 @@ body.light-mode .dropdown {
     border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
+body.light-mode .dropdown option {
+    background: var(--bg-color);
+    color: var(--text-primary);
+}
+
 body.light-mode .btn-icon {
     background: rgba(0,0,0,0.05);
     color: var(--text-primary);
