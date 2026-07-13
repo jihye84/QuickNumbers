@@ -1,0 +1,557 @@
+:root {
+    --bg-color: #050505;
+    --panel-bg: rgba(20, 20, 25, 0.7);
+    --text-primary: #ffffff;
+    --text-secondary: #a0a0b0;
+    
+    --tens-color: #00f0ff;
+    --tens-glow: rgba(0, 240, 255, 0.6);
+    
+    --ones-color: #ff0055;
+    --ones-glow: rgba(255, 0, 85, 0.6);
+
+    --btn-primary: #6366f1;
+    --btn-primary-hover: #4f46e5;
+    
+    --btn-secondary: #10b981;
+    --btn-secondary-hover: #059669;
+
+    --btn-accent: #f59e0b;
+    --btn-accent-hover: #d97706;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    font-family: 'Jua', 'Outfit', sans-serif;
+    height: 100vh;
+    height: 100dvh; /* 모바일 브라우저 주소창 고려 */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+#app {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+}
+
+/* 메인 디스플레이 영역 */
+#display-area {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    transition: background-color 0.3s ease;
+}
+
+/* 어두운 대기 화면 상태 */
+.hidden-state {
+    background-color: #000000;
+}
+
+.hidden-state #blocks-container {
+    opacity: 0;
+    transform: scale(calc(var(--responsive-scale, 1) * 0.9));
+    pointer-events: none;
+}
+
+.hidden-state #answer-display {
+    opacity: 0;
+    transform: scale(calc(var(--responsive-scale, 1) * 0.9));
+    pointer-events: none;
+}
+
+/* 표시 상태 */
+.show-state #blocks-container {
+    opacity: 1;
+    transform: scale(var(--responsive-scale, 1));
+}
+
+.show-state #answer-display {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* 정답 공개 상태 */
+.reveal-state #blocks-container {
+    opacity: 0.3;
+    filter: blur(8px);
+    transform: scale(calc(var(--responsive-scale, 1) * 0.95));
+}
+
+.reveal-state #answer-display {
+    opacity: 1;
+    transform: scale(var(--responsive-scale, 1));
+}
+
+/* 컨텐츠 컨테이너 (Glassmorphism) */
+#blocks-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 40px;
+    padding: 40px 60px;
+    border-radius: 32px;
+    background: var(--panel-bg);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    transition: opacity 0.4s ease, filter 0.4s ease, transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: absolute;
+    z-index: 10;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 수 막대 스타일 */
+#tens-container {
+    display: flex;
+    gap: 15px;
+}
+.ten-block {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    background: rgba(0, 240, 255, 0.1);
+    padding: 4px;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 240, 255, 0.3);
+    box-shadow: 0 0 15px var(--tens-glow);
+}
+.ten-unit {
+    width: 45px;
+    height: 45px;
+    background-color: var(--tens-color);
+    border-radius: 6px;
+    box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.5);
+}
+#ones-container {
+    display: flex;
+    flex-wrap: wrap-reverse;
+    align-content: flex-start;
+    gap: 10px;
+    width: 250px;
+    padding: 6px;
+}
+.one-unit {
+    width: 45px;
+    height: 45px;
+    background-color: var(--ones-color);
+    border-radius: 6px;
+    box-shadow: 0 0 12px var(--ones-glow), inset 0 0 10px rgba(255, 255, 255, 0.4);
+    margin: 4px;
+}
+
+/* 바둑돌 모드 스타일 */
+#stones-tens, #stones-ones {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+.stone-group-10 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(5, 1fr);
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.15);
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.2);
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
+}
+.stone {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    box-shadow: 2px 4px 6px rgba(0,0,0,0.5);
+}
+.stone.black {
+    background: radial-gradient(circle at 30% 30%, #555, #000);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.3), 3px 5px 8px rgba(0,0,0,0.5);
+}
+.stone.white {
+    background: radial-gradient(circle at 30% 30%, #fff, #bbb);
+}
+.stone-group-ones {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    gap: 12px;
+    width: 260px;
+    padding: 12px;
+}
+
+/* 십 배열표 모드 스타일 */
+#frames-container {
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+.ten-frame {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 4px;
+    background: #e5e7eb;
+    padding: 6px;
+    border: 4px solid #374151;
+    border-radius: 8px;
+}
+.frame-cell {
+    width: 60px;
+    height: 60px;
+    background: #ffffff;
+    border: 3px solid #9ca3af;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 4px;
+}
+.frame-dot {
+    width: 45px;
+    height: 45px;
+    background: radial-gradient(circle at 30% 30%, #ef4444, #991b1b);
+    border-radius: 50%;
+    box-shadow: 1px 2px 4px rgba(0,0,0,0.4);
+}
+
+
+/* 정답 텍스트 */
+#answer-display {
+    position: absolute;
+    z-index: 20;
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+#answer-number {
+    font-size: clamp(6rem, 30vw, 20rem);
+    font-weight: 900;
+    font-family: 'Outfit', sans-serif;
+    color: #fff;
+    text-shadow: 0 0 30px rgba(255, 255, 255, 0.8),
+                 0 0 60px rgba(255, 255, 255, 0.4);
+    background: linear-gradient(135deg, #fff, #a5b4fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1;
+}
+
+/* 하단 컨트롤 패널 */
+#control-panel {
+    height: auto;
+    min-height: 100px;
+    background: rgba(10, 10, 12, 0.8);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    padding: 15px 20px;
+    gap: 20px;
+    z-index: 30;
+}
+
+.settings-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+.dropdown {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    font-family: inherit;
+    outline: none;
+    cursor: pointer;
+}
+.dropdown option {
+    background: var(--bg-color);
+    color: white;
+}
+
+.status-info {
+    font-size: 1.5rem;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.duration-controls {
+    display: flex;
+    align-items: center;
+    background: rgba(0,0,0,0.5);
+    border-radius: 20px;
+    padding: 4px;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.btn-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255,255,255,0.1);
+    color: white;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.2s;
+}
+.btn-icon:hover {
+    background: rgba(255,255,255,0.25);
+}
+.btn-icon:active {
+    transform: scale(0.9);
+}
+
+.duration-controls strong {
+    color: var(--text-primary);
+    font-size: 1.8rem;
+    margin: 0 15px;
+    font-family: 'Outfit', sans-serif;
+    min-width: 45px;
+    text-align: center;
+}
+
+.button-group {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+}
+
+.btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    font-size: 1.2rem;
+    font-family: inherit;
+    font-weight: bold;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    color: white;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+.btn:active {
+    transform: translateY(1px);
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-primary {
+    background-color: var(--btn-primary);
+}
+.btn-primary:hover:not(:disabled) {
+    background-color: var(--btn-primary-hover);
+}
+
+.btn-secondary {
+    background-color: var(--btn-secondary);
+}
+.btn-secondary:hover:not(:disabled) {
+    background-color: var(--btn-secondary-hover);
+}
+
+.btn-accent {
+    background-color: var(--btn-accent);
+}
+.btn-accent:hover:not(:disabled) {
+    background-color: var(--btn-accent-hover);
+}
+
+/* 연결 막대 모드 스타일 */
+#connect-tens {
+    display: flex;
+    gap: 15px;
+}
+.connect-stick {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 0;
+    filter: drop-shadow(0 5px 10px rgba(0,0,0,0.4));
+}
+.connect-cube {
+    width: 45px;
+    height: 45px;
+    position: relative;
+    box-shadow: inset -4px -4px 8px rgba(0,0,0,0.3), inset 3px 3px 6px rgba(255,255,255,0.4);
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 3px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--cube-color);
+}
+.connect-cube::before {
+    content: '';
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.15);
+    box-shadow: inset 1px 1px 4px rgba(0,0,0,0.5);
+    position: absolute;
+}
+.connect-cube::after {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 24px;
+    height: 10px;
+    background-color: var(--cube-color);
+    border-radius: 3px 3px 0 0;
+    box-shadow: inset -2px 0px 4px rgba(0,0,0,0.2), inset 2px 2px 3px rgba(255,255,255,0.4);
+    z-index: -1;
+}
+
+#connect-ones {
+    display: flex;
+    align-content: flex-end;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 12px;
+    width: 280px;
+}
+.connect-cube.single-cube {
+    margin-top: 6px;
+    filter: drop-shadow(2px 2px 5px rgba(0,0,0,0.4));
+}
+
+/* 인앱 브라우저 안내 오버레이 */
+#inapp-guide {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(10, 10, 15, 0.95);
+    color: white;
+    z-index: 9999;
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 30px;
+    backdrop-filter: blur(10px);
+}
+#inapp-guide h2 {
+    font-size: 2.5rem;
+    color: #f59e0b;
+    margin-bottom: 20px;
+}
+#inapp-guide p {
+    font-size: 1.3rem;
+    line-height: 1.6;
+    margin-bottom: 15px;
+    color: #e2e8f0;
+}
+
+/* 라이트 모드 (칠판/밝은 테마) */
+body.light-mode {
+    --bg-color: #f3f4f6;
+    --panel-bg: rgba(255, 255, 255, 0.85);
+    --text-primary: #1f2937;
+    --text-secondary: #4b5563;
+    
+    --tens-glow: rgba(0, 200, 255, 0.3);
+    --ones-glow: rgba(255, 0, 85, 0.3);
+}
+
+body.light-mode .hidden-state {
+    background-color: #ffffff; /* 하얀색 대기화면 */
+}
+
+body.light-mode #blocks-container {
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.2);
+}
+
+body.light-mode .ten-block {
+    background: rgba(0, 240, 255, 0.05);
+    border: 1px solid rgba(0, 240, 255, 0.2);
+}
+
+body.light-mode .stone-group-10 {
+    background: rgba(0, 0, 0, 0.03);
+    border: 1px solid rgba(0,0,0,0.1);
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+}
+
+body.light-mode .stone.black {
+    border: none;
+    box-shadow: 2px 4px 6px rgba(0,0,0,0.4);
+}
+
+body.light-mode .stone.white {
+    border: 1px solid #d1d5db;
+    box-shadow: 2px 4px 6px rgba(0,0,0,0.3);
+}
+
+body.light-mode #answer-number {
+    color: #1f2937;
+    text-shadow: 0 0 30px rgba(0, 0, 0, 0.1), 0 0 60px rgba(0, 0, 0, 0.05);
+    background: linear-gradient(135deg, #1f2937, #4f46e5);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+body.light-mode #control-panel {
+    background: rgba(255, 255, 255, 0.9);
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+body.light-mode .duration-controls {
+    background: rgba(0,0,0,0.05);
+    border: 1px solid rgba(0,0,0,0.1);
+}
+
+body.light-mode .dropdown {
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--text-primary);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+body.light-mode .btn-icon {
+    background: rgba(0,0,0,0.05);
+    color: var(--text-primary);
+}
+body.light-mode .btn-icon:hover {
+    background: rgba(0,0,0,0.1);
+}
