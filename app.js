@@ -166,8 +166,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 마우스/터치 뗌 이벤트 (보여주기 종료 처리)
     function handlePressEnd(e) {
-        if (e && e.cancelable) e.preventDefault();
         if (!isPressed) return;
+        if (e && e.cancelable) e.preventDefault();
         
         isPressed = false;
         const elapsed = Date.now() - pressStartTime;
