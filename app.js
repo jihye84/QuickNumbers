@@ -133,7 +133,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 실행
-    checkInAppBrowser();
+    // 인앱 브라우저 처리는 index.html 머리의 공통 스크립트가 맡음
+    // checkInAppBrowser();
 
     // 우클릭 방지
     window.addEventListener('contextmenu', (e) => {
